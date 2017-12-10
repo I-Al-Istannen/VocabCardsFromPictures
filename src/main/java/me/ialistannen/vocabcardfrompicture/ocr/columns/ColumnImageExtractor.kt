@@ -50,7 +50,7 @@ internal class ColumnImageExtractor(private val standardDerivation: Int) {
         // dilation and then eroding makes the text a bit bigger, to smooth out imperfections
         val kernel = Imgproc.getStructuringElement(
                 Imgproc.MORPH_ERODE,
-                Size(3.0, 3.0)
+                Size(4.0, 2.0)
         )
         Imgproc.erode(this, this, kernel)
 
