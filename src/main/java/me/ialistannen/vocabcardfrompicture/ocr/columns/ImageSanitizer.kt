@@ -26,7 +26,7 @@ internal class ImageSanitizer {
 
         val kernel = Imgproc.getStructuringElement(
                 Imgproc.MORPH_ERODE,
-                Size(100.0, 100.0)
+                Size(50.0, 50.0)
         )
         Imgproc.erode(image, image, kernel)
 

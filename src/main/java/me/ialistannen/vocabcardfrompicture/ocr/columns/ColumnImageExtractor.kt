@@ -18,12 +18,12 @@ internal class ColumnImageExtractor(private val standardDerivation: Int) {
                 image: Mat): List<Mat> {
         return listOf(
                 getColumnImage(
-                        contours.inColumn(leftColumnStart),
+                        contours.inColumn(leftColumnStart, rightColumnStart),
                         leftColumnStart, rightColumnStart,
                         image
                 ),
                 getColumnImage(
-                        contours.inColumn(rightColumnStart),
+                        contours.inColumn(rightColumnStart, null),
                         rightColumnStart, null,
                         image
                 )
@@ -34,7 +34,6 @@ internal class ColumnImageExtractor(private val standardDerivation: Int) {
                                columnStart: Int,
                                nextColumnStart: Int?,
                                image: Mat): Mat {
-
         return Mat(image, Rect(
                 Point(
                         columnStart.toDouble(),
@@ -61,11 +60,21 @@ internal class ColumnImageExtractor(private val standardDerivation: Int) {
         return this
     }
 
-    private fun List<MatOfPoint>.inColumn(start: Int): List<MatOfPoint> {
+    private fun List<MatOfPoint>.inColumn(start: Int, nextColumnStart: Int?): List<MatOfPoint> {
         return filter {
             val min = it.toList().map { it.x }.min()!!
 
-            min <= start + standardDerivation && min >= start - standardDerivation
+            if (min < start - standardDerivation) {
+                return@filter false
+            }
+
+            if (nextColumnStart == null) {
+                return@filter true
+            } else {
+                val max = it.toList().map { it.x }.max()!!
+
+                return@filter max <= nextColumnStart
+            }
         }
     }
 

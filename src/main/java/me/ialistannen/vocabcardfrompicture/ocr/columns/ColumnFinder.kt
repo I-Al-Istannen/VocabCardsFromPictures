@@ -1,5 +1,6 @@
 package me.ialistannen.vocabcardfrompicture.ocr.columns
 
+import me.ialistannen.vocabcardfrompicture.util.divideInRanges
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.Point
@@ -29,7 +30,8 @@ class ColumnFinder {
         Imgcodecs.imwrite("/tmp/hm.png", imageForContourDetection)
         Imgcodecs.imwrite("/tmp/hm_en.png", enhancedImage)
 
-        val contours = findContoursWithGreaterWidth(imageForContourDetection, 200)
+        val contours = findContoursWithGreaterWidth(imageForContourDetection, 50)
+
         val columnXStarts = findColumnXStarts(contours)
 
         val mat = imageForContourDetection.clone()
@@ -82,25 +84,15 @@ class ColumnFinder {
     }
 
     private fun findColumnXStarts(contours: List<MatOfPoint>): List<Int> {
-        val sortedContours = contours.sortedBy { it.toList().map { it.x }.min()!! }
-        var lastMinX: Double = -1.0
-        val mins = sortedSetOf<Double>()
+        val contourStarts = contours
+                .map { it.toList().map { it.x }.min()!! }
 
-        for (contour in sortedContours) {
-            val minX = contour.toList().map { it.x }.min()!!
+        val sortedBuckets = divideInRanges(contourStarts, standardDerivation.toDouble())
+                .sortedByDescending { it.contents.size }
 
-            if (lastMinX < 0) {
-                lastMinX = minX
-                mins.add(lastMinX)
-            }
-
-
-            if (minX !in lastMinX - standardDerivation..lastMinX + standardDerivation) {
-                mins.add(minX)
-                lastMinX = minX
-            }
-        }
-
-        return listOf(mins.first().toInt(), mins.last().toInt())
+        return listOf(
+                sortedBuckets[0].min()!!.toInt(),
+                sortedBuckets[1].min()!!.toInt()
+        )
     }
 }
