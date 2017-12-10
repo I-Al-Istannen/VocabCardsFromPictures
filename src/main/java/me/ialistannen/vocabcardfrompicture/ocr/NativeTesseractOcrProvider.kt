@@ -22,7 +22,8 @@ class NativeTesseractOcrProvider(private val language: String) : OcrProvider {
                         "tesseract",
                         tempFile.toAbsolutePath().toString(),
                         "stdout",
-                        "-l", language
+                        "-l", language,
+                        "-psm", "6"
                 )
 
                 println(processBuilder.command())

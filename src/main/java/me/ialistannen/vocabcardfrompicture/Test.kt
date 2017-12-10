@@ -6,6 +6,7 @@ import me.ialistannen.vocabcardfrompicture.ocr.OcrProvider
 import me.ialistannen.vocabcardfrompicture.ocr.columns.ColumnFinder
 import me.ialistannen.vocabcardfrompicture.ocr.sanitizer.SimpleGermanReplacementSanitizer
 import me.ialistannen.vocabcardfrompicture.ocr.toBufferedImage
+import me.ialistannen.vocabcardfrompicture.parsing.StringToCardParser
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import java.io.File
@@ -17,11 +18,11 @@ fun main(args: Array<String>) {
     val ocrProvider: OcrProvider = NativeTesseractOcrProvider("deu")
 
     var ocrResults: Flowable<String> = Flowable.empty()
-//    ocrResults = ocrImage(
-//            Imgcodecs.imread("/tmp/lat/Unmodified_image.jpg", Imgcodecs.IMREAD_GRAYSCALE),
-//            ocrResults,
-//            ocrProvider
-//    )
+    ocrResults = ocrImage(
+            Imgcodecs.imread("/tmp/lat/Unmodified_image.jpg", Imgcodecs.IMREAD_GRAYSCALE),
+            ocrResults,
+            ocrProvider
+    )
     ocrResults = ocrImage(
             Imgcodecs.imread("/tmp/lat/Unmodified_image_german.jpg", Imgcodecs.IMREAD_GRAYSCALE),
             ocrResults,
@@ -35,9 +36,20 @@ fun main(args: Array<String>) {
                 )
             }
             .buffer(2) // two columns
+            .map { it.joinToString("\n") }
+            .buffer(2)
             .subscribe(
                     {
+                        println("${it[0]}\n\n${it[1]}")
+                        val cards = StringToCardParser()
+                                .parse(
+                                        it[0].lines(),
+                                        it[1].lines()
+                                )
                         println("Got: $it\n\n")
+                        for (card in cards) {
+                            println(card)
+                        }
                     },
                     { it.printStackTrace() }
             )
