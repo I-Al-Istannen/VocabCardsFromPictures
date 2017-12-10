@@ -25,7 +25,7 @@ class ColumnFinder {
         val imageForContourDetection = imageSanitizer.sanitizeForContourDetection(enhancedImage)
 
         val contours = findContoursWithGreaterWidth(imageForContourDetection, 100)
-        val columnXStarts = findColumnXStarts(contours)
+        val columnXStarts = findColumnXStarts(contours).sorted()
 
         val columnImages = ColumnImageExtractor(standardDerivation).extract(
                 contours,
