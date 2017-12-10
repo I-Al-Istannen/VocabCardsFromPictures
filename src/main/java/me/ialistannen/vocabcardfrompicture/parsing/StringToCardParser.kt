@@ -9,6 +9,7 @@ class StringToCardParser {
 
     companion object {
         private val BASE_FROM_EXTRACTOR: Regex = Regex("(.+?)\\W.+")
+        private val AMOUNT_OF_MEANINGS_REMOVER: Regex = Regex("(.+)(\\s*\\d)\$")
     }
 
     /**
@@ -26,10 +27,12 @@ class StringToCardParser {
         }
         val result = mutableListOf<VocabCard>()
 
-        for ((first, second) in latin.zip(german)) {
+        for ((forms, meaning) in latin.zip(german)) {
             result.add(
                     VocabCard(
-                            stripAdditionalForms(first), first, second
+                            stripAdditionalForms(forms),
+                            clearAmountOfMeaningsFromForm(forms),
+                            meaning
                     )
             )
         }
@@ -39,5 +42,9 @@ class StringToCardParser {
 
     private fun stripAdditionalForms(form: String): String {
         return BASE_FROM_EXTRACTOR.find(form)?.groupValues?.get(1) ?: form
+    }
+
+    private fun clearAmountOfMeaningsFromForm(form: String): String {
+        return AMOUNT_OF_MEANINGS_REMOVER.replace(form, "$1").trim()
     }
 }
