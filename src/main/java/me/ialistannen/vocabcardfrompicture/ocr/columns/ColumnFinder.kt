@@ -30,7 +30,7 @@ class ColumnFinder {
         Imgcodecs.imwrite("/tmp/hm.png", imageForContourDetection)
         Imgcodecs.imwrite("/tmp/hm_en.png", enhancedImage)
 
-        val contours = findContoursWithGreaterWidth(imageForContourDetection, 50)
+        val contours = findContoursWithGreaterWidth(imageForContourDetection, 100)
 
         val columnXStarts = findColumnXStarts(contours)
 
@@ -89,6 +89,10 @@ class ColumnFinder {
 
         val sortedBuckets = divideInRanges(contourStarts, standardDerivation.toDouble())
                 .sortedByDescending { it.contents.size }
+
+        for (bucket in sortedBuckets) {
+            println("Bucket ${bucket.contents.size} (${bucket.min()} - ${bucket.max()})")
+        }
 
         return listOf(
                 sortedBuckets[0].min()!!.toInt(),
